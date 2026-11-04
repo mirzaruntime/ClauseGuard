@@ -1,0 +1,64 @@
+# Dependencies
+**/node_modules/
+
+# Build output
+**/dist/
+**/build/
+**/coverage/
+**/dist-ssr/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# User uploads and private documents
+backend/uploads/
+
+# Logs
+*.log
+logs/
+
+# Database dumps and backups
+*.dump
+*.bson
+*.backup
+*.bak
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Private key and certificate material
+*.pem
+*.key
+*.p12
+*.pfx
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Temporary files
+*.tmp
+*.swp
+*.temp
+*.orig
+*.rej
+
+# Test and local tooling artifacts
+.nyc_output/
+playwright-report/
+test-results/
+.eslintcache
+*.tsbuildinfo
+
+# Local deployment and debug files
+.vercel/
+.DS_Store?
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
