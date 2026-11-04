@@ -1,140 +1,272 @@
 # ClauseGuard
 
-ClauseGuard is an AI-assisted contract obligation management system. It extracts potential obligations from uploaded PDF contracts and gives users a review workflow to decide what to track.
+**AI-assisted contract obligation management with human-in-the-loop review.**
+
+ClauseGuard extracts potential obligations from PDF contracts and helps users review, organize, and track important commitments and deadlines.
+
+AI identifies candidates; **people make the decisions.** Suggestions remain in a `potential` state until a user reviews them. AI-generated output is not verified legal advice.
 
 ## The problem
 
-Contract deadlines and commitments can be difficult to find and manage across documents. ClauseGuard helps surface candidate obligations and organize their follow-up while keeping people responsible for review and decisions.
+Contract deadlines, responsibilities, and commitments can be difficult to identify and manage across multiple documents.
 
-## Workflow and features
+ClauseGuard provides a workflow to:
+
+- Extract potential obligations from uploaded PDF contracts.
+- Review AI-generated suggestions before accepting them.
+- Organize confirmed obligations and track their status.
+- Manage reminders and monitor approaching deadlines.
+
+## Key features
+
+- **PDF contract processing:** Upload PDF documents and extract their text.
+- **AI-assisted analysis:** Generate potential obligations using Gemini or Groq.
+- **Human review workflow:** Confirm, reject, or edit AI-generated suggestions.
+- **Obligation management:** Track confirmed obligations and mark them complete.
+- **Reminder management:** Create and manage reminders for important deadlines.
+- **Dashboard:** View contract, obligation, and reminder information.
+- **Authentication:** Account registration, login, and password recovery.
+- **Background scheduling:** Process due reminders and identify overdue obligations.
+
+## How it works
 
 1. A registered user uploads a PDF contract.
-2. The backend extracts PDF text and asks a configured Gemini or Groq provider for potential obligations.
-3. Suggestions are saved with `potential` status and shown for human review. AI output is not a verified legal obligation or legal advice.
-4. A user can confirm, reject, or edit suggestions.
-5. Confirmed obligations can be tracked, marked complete, and given reminders.
-6. The backend scheduler dispatches due reminders through the selected log or email channel and marks confirmed obligations overdue when their deadline passes.
+2. The backend extracts the document text.
+3. The configured Gemini or Groq provider analyzes the extracted text.
+4. AI-generated suggestions are stored with `potential` status.
+5. The user reviews each suggestion and can confirm, reject, or edit it.
+6. Confirmed obligations can be tracked, completed, and assigned reminders.
+7. The scheduler dispatches due reminders through the configured log or email channel and marks obligations overdue when their deadlines pass.
 
-Other implemented areas include account registration and login, password recovery, contract and obligation lists, dashboards, reminder management, request validation, ownership checks, and PDF upload validation.
+**Important:** AI-generated suggestions may be incomplete or incorrect. Human review is required before treating a suggestion as an actual obligation.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  User[User] --> UI[React and Vite frontend]
-  UI --> API[Express REST API]
-  API --> DB[(MongoDB via Mongoose)]
-  API --> Files[Local PDF storage]
-  API --> AI[Gemini or Groq provider]
-  Scheduler[node-cron jobs] --> DB
-  Scheduler --> Notify[Log or Resend email channel]
+    User[User] --> UI[React + Vite Frontend]
+    UI --> API[Express REST API]
+    API --> DB[(MongoDB + Mongoose)]
+    API --> Files[Local PDF Storage]
+    API --> AI[Gemini / Groq]
+    Scheduler[node-cron Scheduler] --> DB
+    Scheduler --> Notify[Log / Resend Email]
 ```
 
-Contract processing is handed off in-process with `setImmediate`; it is not backed by a durable job queue. Uploaded files are stored on the backend's local filesystem by default.
+Contract processing is handed off using `setImmediate`. It does not use a durable background job queue. Uploaded files are stored on the backend's local filesystem by default.
 
-## Tech stack
+## Technology stack
 
-- **Frontend:** React, TypeScript, Vite, React Router, Axios, Zustand, Tailwind CSS, Radix UI, Motion, Recharts.
-- **Backend:** Node.js 22.13+, Express, TypeScript, MongoDB/Mongoose, Zod, Multer, pdfjs-dist, Gemini and Groq provider integrations, Jest, Supertest, Resend HTTP integration, and node-cron.
+| Layer | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| Routing | React Router |
+| State management | Zustand |
+| Styling and UI | Tailwind CSS, Radix UI |
+| Animation and charts | Motion, Recharts |
+| HTTP client | Axios |
+| Backend | Node.js, Express, TypeScript |
+| Database | MongoDB, Mongoose |
+| Validation | Zod |
+| PDF processing | Multer, pdfjs-dist |
+| AI integration | Gemini, Groq |
+| Scheduling | node-cron |
+| Email | Resend HTTP integration |
+| Testing | Jest, Supertest |
 
 ## Repository structure
 
 ```text
-.
-â”œâ”€â”€ frontend/     React application and frontend documentation
-â”œâ”€â”€ backend/      Express API, processing services, jobs, and backend tests
-â””â”€â”€ README.md     Monorepo overview and setup
+ClauseGuard/
+├── frontend/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── routes/
+│   │   ├── store/
+│   │   └── types/
+│   ├── package.json
+│   └── README.md
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── jobs/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── types/
+│   │   ├── utils/
+│   │   └── validators/
+│   ├── tests/
+│   ├── package.json
+│   └── README.md
+│
+├── .gitignore
+└── README.md
 ```
 
-Each application has its own `package.json`, lockfile, and install step. Run commands from that application's directory.
+The frontend and backend are separate applications, each with its own `package.json` and lockfile.
 
-## Prerequisites
+## Getting started
 
-- Node.js 22.13.0 or newer (required by the backend and compatible with Vite 8).
+### Prerequisites
+
+- Node.js 22.13.0 or newer.
 - npm.
-- MongoDB for running the backend.
-- An API key for the selected AI provider to process contracts. The backend can start without an AI key, but contract analysis will fail until configured.
+- MongoDB.
+- An API key for Gemini or Groq if you want to use contract analysis.
 
-## Backend setup
+### 1. Clone the repository
 
-From the repository root:
+```bash
+git clone https://github.com/mirzaruntime/ClauseGuard.git
+cd ClauseGuard
+```
+
+### 2. Configure the backend
 
 ```bash
 cd backend
-npm install
-cp .env.example .env
+npm ci
 ```
 
-On Windows PowerShell, use `Copy-Item .env.example .env` in place of `cp`. Set at least `MONGODB_URI` and a randomly generated `JWT_SECRET` of 32 or more characters in `backend/.env`. Select `AI_PROVIDER=gemini` or `AI_PROVIDER=groq` and configure the matching provider key if you want contract analysis. Never commit `.env` or put secrets in frontend variables.
+Create your environment file:
 
-Start MongoDB separately, then run the API:
+```powershell
+Copy-Item .env.example .env
+```
+
+Configure at least:
+
+- `MONGODB_URI` — MongoDB connection string.
+- `JWT_SECRET` — Randomly generated secret containing at least 32 characters.
+- `AI_PROVIDER` — Select `gemini` or `groq`.
+- The corresponding AI provider API key if contract analysis is required.
+
+Start MongoDB separately.
+
+Start the backend development server:
 
 ```bash
 npm run dev
 ```
 
-The backend listens on port 4000 by default. See [backend/README.md](backend/README.md) for all environment options, database setup, API details, and scheduler behavior.
+The backend listens on port `4000` by default.
 
-## Frontend setup
+Refer to [backend/README.md](backend/README.md) for the complete environment configuration, API documentation, database setup, and scheduler details.
 
-In another terminal:
+### 3. Configure the frontend
+
+Open another terminal:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Vite serves the frontend at `http://localhost:5173` and proxies `/api` to `http://localhost:4000` by default. To use another API base URL, create `frontend/.env.local` with `VITE_API_BASE_URL` set to that URL. Vite-exposed variables are public in the built client; never place credentials in them. See [frontend/README.md](frontend/README.md) for details.
+Vite serves the frontend at:
+
+```text
+http://localhost:5173
+```
+
+By default, API requests under `/api` are proxied to:
+
+```text
+http://localhost:4000
+```
+
+To use a different backend URL, create `frontend/.env.local` and configure:
+
+```env
+VITE_API_BASE_URL=http://localhost:4000/api
+```
+
+Never place private credentials or API keys in frontend environment variables. Vite-exposed variables are included in the client-side build.
+
+Refer to [frontend/README.md](frontend/README.md) for additional frontend configuration details.
 
 ## Development commands
 
-Run these from `frontend/` or `backend/` as appropriate:
+Run the commands from the appropriate application directory.
 
-| Purpose | Frontend | Backend |
-| --- | --- | --- |
+| Command | Frontend | Backend |
+|---|---|---|
+| Install dependencies | `npm ci` | `npm ci` |
 | Development server | `npm run dev` | `npm run dev` |
-| Type check | `npm run typecheck` | `npm run typecheck` |
-| Lint | `npm run lint` | `npm run lint` |
+| Type checking | `npm run typecheck` | `npm run typecheck` |
+| Linting | `npm run lint` | `npm run lint` |
 | Production build | `npm run build` | `npm run build` |
-| Test suite | â€” | `npm test` |
+| Tests | — | `npm test` |
 
-Frontend `npm run build` runs TypeScript project checks before Vite builds. Backend `npm test` runs unit tests and database-backed suites; suites requiring MongoDB are skipped unless `TEST_MONGODB_URI` points to a disposable test database. Those suites clear collections and drop that database, so do not use a production or valuable database URI. Tests stub AI providers and should not call live AI APIs.
+The frontend production build runs TypeScript project checks before Vite builds the application.
+
+Backend tests include unit and database-backed suites. Integration suites requiring MongoDB are skipped unless `TEST_MONGODB_URI` points to a disposable test database.
+
+**Warning:** Database-backed tests clear collections and drop their configured test database. Never use a production or valuable database URI. AI providers are stubbed in tests and should not call live AI APIs.
 
 ## API overview
 
-The API base path is `/api`. Route groups include:
+The API base path is `/api`.
 
-- `GET /health` and `GET /health/ready`
-- `/auth` and `/users` for authentication and account operations
-- `/contracts` for PDF upload, listing, details, and deletion
-- `/obligations` for suggestion review and obligation management
-- `/reminders` for reminder scheduling and management
+| Route group | Purpose |
+|---|---|
+| `/health` | Health checks |
+| `/health/ready` | Database readiness check |
+| `/auth` | Authentication and password recovery |
+| `/users` | Account operations |
+| `/contracts` | PDF upload, listing, details, and deletion |
+| `/obligations` | Suggestion review and obligation management |
+| `/reminders` | Reminder scheduling and management |
 
-See the route files in `backend/src/routes/` and the detailed endpoint tables in [backend/README.md](backend/README.md). Responses use a common success/error envelope.
+See `backend/src/routes/` and [backend/README.md](backend/README.md) for the endpoint details.
 
-## Security considerations
+API responses use a common success/error response envelope.
 
-- Keep backend secrets in ignored environment files and use strong, unique values outside local development.
-- Contract files and extracted text are sensitive. The default storage is local disk; configure access, backups, retention, and deletion policies appropriately before handling real contracts.
-- Uploaded PDF text is sent to the configured AI provider for analysis. Review that provider's data handling terms before using confidential documents.
-- Set `CORS_ORIGIN` to explicit HTTPS frontend origins for production. The non-production wildcard mode does not enable credentialed CORS. Reminder delivery logs contain operational identifiers and dates, not obligation titles or user-provided reminder messages.
-- The API applies authentication, resource ownership checks, input validation, upload limits, rate limiting, and security headers. These measures do not replace a deployment security review.
-- AI output can be incomplete or incorrect. Review suggestions before treating them as obligations or relying on deadlines.
+## Security and data handling
+
+- Backend secrets belong in environment variables, never in committed source code.
+- Use strong, unique secrets outside local development.
+- Contract documents and extracted text may contain confidential information.
+- Uploaded PDF text is sent to the configured AI provider for analysis. Review that provider's data handling terms before submitting confidential documents.
+- Default file storage is local disk. Production deployments need appropriate access controls, retention policies, backups, and deletion procedures.
+- Configure `CORS_ORIGIN` with explicit HTTPS frontend origins in production.
+- The API implements authentication, resource ownership checks, input validation, upload limits, rate limiting, and security headers.
+- AI-generated suggestions must be reviewed before being treated as obligations or relying on their deadlines.
+
+These controls do not replace a proper production security review.
 
 ## Current limitations
 
-- AI suggestions are not legally accurate or verified; a human review step is required.
-- Contract processing runs in-process rather than through a durable queue. Work may be lost if the process stops during analysis.
-- Files are stored on local disk, which is not shared storage for multi-instance deployments.
-- The scheduler is in-process. Email requires valid Resend configuration and a sender domain verified with Resend; Resend test mode may restrict recipients. Real email delivery has not been verified for this repository. The default reminder channel is the application log.
-- Database-backed tests need an isolated MongoDB test database. They are skipped when `TEST_MONGODB_URI` is not set.
-- No deployment is documented or verified. This repository does not currently include a license; do not assume permission to reuse it until a license is selected and added.
+- AI suggestions are not verified legal obligations or legal advice.
+- Contract processing uses in-process execution rather than a durable job queue. Work may be lost if the backend stops during analysis.
+- Uploaded files use local filesystem storage by default, which is unsuitable as shared storage for multiple backend instances.
+- The scheduler runs in-process.
+- Email delivery requires valid Resend configuration and a sender domain verified with Resend. Real email delivery has not been verified for this repository.
+- The default reminder channel is the application log.
+- Database-backed integration tests require an isolated MongoDB test database.
+- No production deployment has been verified.
+- The repository currently has no license. Public visibility does not automatically grant permission to reuse its code.
 
 ## Future improvements
 
-- Move contract processing to a durable background queue and uploads to managed object storage.
-- Add operational monitoring and deployment guidance, including a shared scheduler strategy for multiple instances.
-- Add OCR or another supported workflow for scanned PDFs, and consider chunking long contracts.
-- Expand integration and end-to-end validation against isolated services and representative documents.
-- Select and add an appropriate open-source license before accepting public reuse or contributions.
+- Introduce a durable background job queue for contract processing.
+- Move uploaded documents to managed object storage.
+- Add OCR support for scanned PDFs.
+- Implement chunking for long contracts.
+- Improve monitoring and production deployment guidance.
+- Establish a shared scheduler strategy for multiple backend instances.
+- Expand integration and end-to-end testing.
+- Select and add an appropriate open-source license.
+
+---
+
+**Built by [mirzaruntime](https://github.com/mirzaruntime)**
+
+[GitHub Repository](https://github.com/mirzaruntime/ClauseGuard)
