@@ -73,8 +73,11 @@ const emailChannel: NotificationChannel = {
 
 const channels = new Map<ReminderChannel, NotificationChannel>([
   [logChannel.name, logChannel],
-  [emailChannel.name, emailChannel],
 ]);
+
+if (env.EMAIL_ENABLED && env.RESEND_API_KEY && env.EMAIL_FROM) {
+  channels.set(emailChannel.name, emailChannel);
+}
 
 /** Registers an additional channel (for example an email transport). */
 export function registerChannel(channel: NotificationChannel): void {

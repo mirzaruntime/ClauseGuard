@@ -20,6 +20,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().min(1).default('7d'),
 
   FRONTEND_URL: z.string().url().optional(),
+  EMAIL_ENABLED: booleanish.default(true),
   RESEND_API_KEY: z.string().min(1).optional(),
   EMAIL_FROM: z.string().trim().min(1).optional(),
 
@@ -129,11 +130,22 @@ const envSchema = z.object({
     context.addIssue({ code: 'custom', path: ['FRONTEND_URL'], message: 'FRONTEND_URL must use HTTPS in production' });
   }
 
-  if (!value.RESEND_API_KEY) {
-    context.addIssue({ code: 'custom', path: ['RESEND_API_KEY'], message: 'RESEND_API_KEY is required in production' });
-  }
-  if (!value.EMAIL_FROM) {
-    context.addIssue({ code: 'custom', path: ['EMAIL_FROM'], message: 'EMAIL_FROM is required in production' });
+  if (value.EMAIL_ENABLED) {
+    if (!value.RESEND_API_KEY) {
+      context.addIssue({
+        code: 'custom',
+        path: ['RESEND_API_KEY'],
+        message: 'RESEND_API_KEY is required when email is enabled',
+      });
+    }
+
+    if (!value.EMAIL_FROM) {
+      context.addIssue({
+        code: 'custom',
+        path: ['EMAIL_FROM'],
+        message: 'EMAIL_FROM is required when email is enabled',
+      });
+    }
   }
 });
 

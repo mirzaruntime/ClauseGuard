@@ -114,7 +114,9 @@ function formatReminderDate(value: Date | null): string | null {
 
 /** Sends a reminder through the same Resend endpoint and configuration as recovery email. */
 export async function sendReminderEmail(input: ReminderEmail): Promise<void> {
-  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) throw new Error('EMAIL_CONFIGURATION_MISSING');
+  if (!env.EMAIL_ENABLED || !env.RESEND_API_KEY || !env.EMAIL_FROM) {
+    throw new Error('EMAIL_CONFIGURATION_MISSING');
+  }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.to.trim())) throw new Error('REMINDER_RECIPIENT_INVALID');
 
   const title = input.obligationTitle.trim() || 'Contract obligation';
@@ -169,7 +171,7 @@ export async function sendReminderEmail(input: ReminderEmail): Promise<void> {
 
 /** Sends a password reset email without logging recipient addresses or tokens. */
 export async function sendPasswordResetEmail({ to, resetUrl }: PasswordResetEmail): Promise<boolean> {
-  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) {
+  if (!env.EMAIL_ENABLED || !env.RESEND_API_KEY || !env.EMAIL_FROM) {
     logger.warn('auth.password_reset.email_skipped', {
       provider: 'resend',
       reasonCode: 'EMAIL_CONFIGURATION_MISSING',
